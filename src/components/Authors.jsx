@@ -1,30 +1,50 @@
-const Authors = (props) => {
-  if (!props.show) {
-    return null
+import PropTypes from 'prop-types'
+import { useQuery, gql } from '@apollo/client'
+
+const ALL_AUTHORS = gql`
+  query {
+    allAuthors {
+      name
+      born
+      bookCount
+    }
   }
-  const authors = []
+`
+
+const Authors = ({ show }) => {
+  const { data, loading, error } = useQuery(ALL_AUTHORS)
+
+  if (!show) return null
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>Error loading authors</p>
 
   return (
     <div>
-      <h2>authors</h2>
+      <h2>Authors</h2>
       <table>
-        <tbody>
+        <thead>
           <tr>
-            <th></th>
-            <th>born</th>
-            <th>books</th>
+            <th>Name</th>
+            <th>Born</th>
+            <th>Books</th>
           </tr>
-          {authors.map((a) => (
-            <tr key={a.name}>
-              <td>{a.name}</td>
-              <td>{a.born}</td>
-              <td>{a.bookCount}</td>
+        </thead>
+        <tbody>
+          {data.allAuthors.map(author => (
+            <tr key={author.name}>
+              <td>{author.name}</td>
+              <td>{author.born || "Unknown"}</td>
+              <td>{author.bookCount}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
   )
+}
+
+Authors.propTypes = {
+  show: PropTypes.bool.isRequired,
 }
 
 export default Authors
