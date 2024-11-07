@@ -1,26 +1,33 @@
+import { useState } from 'react'
 import PropTypes from 'prop-types'
-import { useQuery, gql } from '@apollo/client'
-
-const ALL_BOOKS = gql`
-  query {
-    allBooks {
-      title
-      author
-      published
-    }
-  }
-`
+import { useQuery } from '@apollo/client'
+import { ALL_BOOKS } from '../queries'
 
 const Books = ({ show }) => {
-  const { data, loading, error } = useQuery(ALL_BOOKS)
+  const [genre, setGenre] = useState(null);
+  const { data, loading, error } = useQuery(ALL_BOOKS, {
+    variables: { genre },
+    fetchPolicy: "cache-and-network",
+  })
 
   if (!show) return null
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error loading books</p>
 
+  const books = data.allBooks
+  const genres = [...new Set(books.flatMap((book) => book.genres))]
+
   return (
     <div>
       <h2>Books</h2>
+      <div>
+        {genres.map((g) => (
+          <button key={g} onClick={() => setGenre(g)}>
+            {g}
+          </button>
+        ))}
+        <button onClick={() => setGenre(null)}>all genres</button>
+      </div>
       <table>
         <thead>
           <tr>
@@ -30,10 +37,10 @@ const Books = ({ show }) => {
           </tr>
         </thead>
         <tbody>
-          {data.allBooks.map(book => (
+          {books.map((book) => (
             <tr key={book.title}>
               <td>{book.title}</td>
-              <td>{book.author}</td>
+              <td>{book.author.name}</td>
               <td>{book.published}</td>
             </tr>
           ))}

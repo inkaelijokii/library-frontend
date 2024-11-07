@@ -1,46 +1,33 @@
-import { useState } from 'react'
 import PropTypes from 'prop-types'
-import { useMutation, gql } from '@apollo/client'
+import { useMutation } from '@apollo/client'
+import { ADD_BOOK, ALL_BOOKS } from '../queries'
 
-const ADD_BOOK = gql`
-  mutation AddBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
-    addBook(title: $title, author: $author, published: $published, genres: $genres) {
-      title
-      author
-    }
-  }
-`
 
 const AddBook = ({ show }) => {
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [published, setPublished] = useState('')
-  const [genres, setGenres] = useState('')
   const [addBook] = useMutation(ADD_BOOK, {
-    refetchQueries: ['ALL_BOOKS', 'ALL_AUTHORS'],
+    refetchQueries: [{ query: ALL_BOOKS }],
   })
 
   if (!show) return null
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const genreArray = genres.split(',').map(g => g.trim())
-    addBook({ variables: { title, author, published: parseInt(published), genres: genreArray } })
+  const submit = async (event) => {
+    event.preventDefault()
+    const title = event.target.title.value
+    const author = event.target.author.value
+    const published = Number(event.target.published.value)
+    const genres = event.target.genres.value.split(",")
 
-    setTitle('')
-    setAuthor('')
-    setPublished('')
-    setGenres('')
+    addBook({ variables: { title, author, published, genres } })
   }
 
   return (
     <div>
       <h2>Add a New Book</h2>
-      <form onSubmit={handleSubmit}>
-        <div>Title: <input value={title} onChange={(e) => setTitle(e.target.value)} /></div>
-        <div>Author: <input value={author} onChange={(e) => setAuthor(e.target.value)} /></div>
-        <div>Published: <input type="number" value={published} onChange={(e) => setPublished(e.target.value)} /></div>
-        <div>Genres (comma-separated): <input value={genres} onChange={(e) => setGenres(e.target.value)} /></div>
+      <form onSubmit={submit}>
+        <div>Title: <input name='title' /></div>
+        <div>Author: <input name='author' /></div>
+        <div>Published: <input name='published' type="number" /></div>
+        <div>Genres: <input name='genres' /></div>
         <button type="submit">Add Book</button>
       </form>
     </div>

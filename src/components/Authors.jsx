@@ -1,15 +1,6 @@
 import PropTypes from 'prop-types'
-import { useQuery, gql } from '@apollo/client'
-
-const ALL_AUTHORS = gql`
-  query {
-    allAuthors {
-      name
-      born
-      bookCount
-    }
-  }
-`
+import { useQuery } from '@apollo/client'
+import { ALL_AUTHORS } from '../queries'
 
 const Authors = ({ show }) => {
   const { data, loading, error } = useQuery(ALL_AUTHORS)
@@ -30,11 +21,11 @@ const Authors = ({ show }) => {
           </tr>
         </thead>
         <tbody>
-          {data.allAuthors.map(author => (
+          {data.allAuthors.map((author) => (
             <tr key={author.name}>
               <td>{author.name}</td>
               <td>{author.born || "Unknown"}</td>
-              <td>{author.bookCount}</td>
+              <td>{author.bookCount || '0'}</td>
             </tr>
           ))}
         </tbody>
