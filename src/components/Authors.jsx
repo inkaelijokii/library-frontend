@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { useQuery } from '@apollo/client'
+import EditAuthorBirthYear from './EditAuthorBirthYear'
 import { ALL_AUTHORS } from '../queries'
 
 const Authors = ({ show }) => {
@@ -30,6 +31,7 @@ const Authors = ({ show }) => {
           ))}
         </tbody>
       </table>
+      <EditAuthorBirthYear authors={data.allAuthors} />
     </div>
   )
 }

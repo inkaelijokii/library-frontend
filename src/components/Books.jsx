@@ -14,7 +14,7 @@ const Books = ({ show }) => {
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error loading books</p>
 
-  const books = data.allBooks
+  const books = data?.data.allBooks || [] 
   const genres = [...new Set(books.flatMap((book) => book.genres))]
 
   return (

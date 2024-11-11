@@ -4,7 +4,9 @@ import Books from "./components/Books"
 import NewBook from "./components/NewBook"
 import EditAuthorBirthYear from "./components/EditAuthorBirthYear"
 import LoginForm from "./components/LoginForm"
-import { useApolloClient } from "@apollo/client"
+import Notifications from "./components/Notifications"
+import { useApolloClient, useSubscription } from "@apollo/client"
+import { BOOK_ADDED } from "./queries"
 
 
 const App = () => {
@@ -17,6 +19,14 @@ const App = () => {
     localStorage.removeItem("user-token")
     client.resetStore()
   }
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      const addedBook = subscriptionData.data.bookAdded
+      window.alert(`New book added: ${addedBook.title}`)
+    }
+  })
+
 
   return (
     <div>
@@ -33,6 +43,7 @@ const App = () => {
           <button onClick={() => setPage("login")}>login</button>
         )}
       </div>
+      <Notifications />
 
       <Authors show={page === "authors"} />
       <Books show={page === "books"} />

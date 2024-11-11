@@ -6,31 +6,25 @@ import PropTypes from "prop-types"
 const LoginForm = ({ show, setToken }) => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [login] = useMutation(LOGIN, {
-    onCompleted: (data) => {
-      const token = data.login.value
-      setToken(token)
-      localStorage.setItem("user-token", token)
-    },
-  })
+  const [login] = useMutation(LOGIN)
+
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    const result = await login({ variables: { username, password } })
+    if (result) {
+      setToken(result.data.login.value)
+      localStorage.setItem('user-token', result.data.login.value)
+    }
+  }
 
   if (!show) return null
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    await login({ variables: { username, password } })
-  }
 
   return (
     <div>
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          Username <input value={username} onChange={({ target }) => setUsername(target.value)} />
-        </div>
-        <div>
-          Password <input type="password" value={password} onChange={({ target }) => setPassword(target.value)} />
-        </div>
+      <form onSubmit={handleLogin}>
+        <input value={username} onChange={({ target }) => setUsername(target.value)} placeholder="Username" />
+        <input type="password" value={password} onChange={({ target }) => setPassword(target.value)} placeholder="Password" />
         <button type="submit">login</button>
       </form>
     </div>

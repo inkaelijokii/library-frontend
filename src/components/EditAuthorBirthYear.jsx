@@ -1,43 +1,50 @@
 import { useState } from 'react'
-import Select from 'react-select'
 import PropTypes from 'prop-types'
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import { EDIT_AUTHOR, ALL_AUTHORS } from '../queries'
 
-
-
-const EditAuthorBirthYear = ({ show }) => {
-  const { data } = useQuery(ALL_AUTHORS)
-  const [year, setYear] = useState('')
-  const [selectedAuthor, setSelectedAuthor] = useState(null)
+const EditAuthorBirthYear = ({ authors }) => {
+  const [name, setName] = useState('');
+  const [born, setBorn] = useState('');
+  
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
-    refetchQueries: ['ALL_AUTHORS'],
-  })
+    refetchQueries: [{ query: ALL_AUTHORS }],
+    onError: (error) => {
+      console.error('Error editing author birth year:', error.graphQLErrors);
+    },
+  });
 
-  if (!show) return null
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (selectedAuthor) {
-      editAuthor({ variables: { name: selectedAuthor.value, setBornTo: parseInt(year) } })
-      setSelectedAuthor(null)
-      setYear('')
-    }
+  const submit = async (event) => {
+    event.preventDefault();
+    editAuthor({ variables: { name, setBornTo: Number(born) } });
+    setName('');
+    setBorn('');
   }
-
-  const options = data?.allAuthors.map(author => ({ value: author.name, label: author.name }))
 
   return (
     <div>
       <h2>Edit Author Birth Year</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={submit}>
         <div>
-          <Select options={options} value={selectedAuthor} onChange={setSelectedAuthor} />
+          <label>Author:</label>
+          <select value={name} onChange={({ target }) => setName(target.value)}>
+            <option value="" disabled>Select author</option>
+            {authors.map((author) => (
+              <option key={author.name} value={author.name}>
+                {author.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
-          Born: <input type="number" value={year} onChange={(e) => setYear(e.target.value)} />
+          <label>Born:</label>
+          <input
+            type="number"
+            value={born}
+            onChange={({ target }) => setBorn(target.value)}
+          />
         </div>
-        <button type="submit">Update Birth Year</button>
+        <button type="submit">Update author</button>
       </form>
     </div>
   )
@@ -45,6 +52,8 @@ const EditAuthorBirthYear = ({ show }) => {
 
 EditAuthorBirthYear.propTypes = {
   show: PropTypes.bool.isRequired,
+  map: PropTypes.bool.isRequired,
+  authors: PropTypes.bool.isRequired,
 }
 
 export default EditAuthorBirthYear
